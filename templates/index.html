@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Book for Coin</title>
+    <link rel="stylesheet" href="../static/css/index.css" />
+</head>
+
+<body>
+    <h1>Enter Coin ID to Get Order Book</h1>
+    <form method="POST">
+        <label for="coin_id">Coin ID (e.g., BTC, ETH):</label>
+        <input type="text" id="coin_id" name="coin_id" placeholder="Enter coin id (e.g., BTC)" required />
+        <button type="submit">Get Order Book</button>
+    </form>
+    <div id="container">
+        {% for i in coins %}
+        <div id="card">
+            <h2 id="coin_name">{{ i | upper }}</h2>
+            <div id="order_table">
+                <div id="bids_{{ i }}">
+                    <h3>Bids</h3>
+                    <table id="bids_table_{{ i }}">
+                        <thead>
+                            <tr>
+                                <th>Volume</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div id="asks_{{ i }}">
+                    <h3>Asks</h3>
+                    <table id="asks_table_{{ i }}">
+                        <thead>
+                            <tr>
+                                <th>Volume</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+<script>
+    // const coins = ['DOGE','ETH','SHIB','BTC','TRX','META'];
+    const coins = {{ coins | tojson | upper}}; // coins list from flask is initialized to coins variable/list in javascript.
+    console.log(coins);
+    function updateOrderBook(coin_id) {
+        fetch('/coin/' + coin_id + '/data')
+            .then(response => response.json())
+            .then(data => {
+                var bids = data.bids.slice(0, 5);
+                var asks = data.asks.slice(0, 5);
+
+                var bids_table = document.getElementById('bids_table_' + coin_id);
+                var asks_table = document.getElementById('asks_table_' + coin_id);
+
+                bids_table.querySelector('tbody').innerHTML = '';
+                asks_table.querySelector('tbody').innerHTML = '';
+
+                bids.forEach(bid => {
+                    var row = bids_table.querySelector('tbody').insertRow();
+                    row.innerHTML = `<td>${bid.volume}</td><td>${bid.price}</td><td>${bid.total}</td>`;
+                });
+
+                asks.forEach(ask => {
+                    var row = asks_table.querySelector('tbody').insertRow();
+                    row.innerHTML = `<td>${ask.volume}</td><td>${ask.price}</td><td>${ask.total}</td>`;
+                });
+            })
+            .catch(error => console.error('Error fetching order book data:', error));
+    }
+
+    let index = 0;
+    setInterval(() => {
+        const coin_id = coins[index];
+        updateOrderBook(coin_id);
+        index = (index + 1) % coins.length;
+    }, 1000);
+</script>
+</html>
