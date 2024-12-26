@@ -17,8 +17,12 @@
     </form>
     <div id="container">
         {% for i in coins %}
-        <div id="card">
-            <h2 id="coin_name">{{ i | upper }}</h2>
+        <div id="card" data-coin-name="{{ i }}">
+            <div id="card_inner">
+                <span id="remove_coin" onclick="removeCoin('{{ i }}')">&times;</span>
+                <h2 id="coin_name">{{ i | upper }}</h2>
+            </div> 
+            <h4>Last updated on : <time id="updateTime_{{ i }}"></time></h4>
             <div id="order_table">
                 <div id="bids_{{ i }}">
                     <h3>Bids</h3>
@@ -52,15 +56,22 @@
     </div>
 </body>
 <script>
-    // const coins = ['DOGE','ETH','SHIB','BTC','TRX','META'];
     const coins = {{ coins | tojson | upper}}; // coins list from flask is initialized to coins variable/list in javascript.
     console.log(coins);
     function updateOrderBook(coin_id) {
         fetch('/coin/' + coin_id + '/data')
             .then(response => response.json())
             .then(data => {
+                const curr_date = new Date();
+                const curr_hour = curr_date.getHours();
+                const curr_min = curr_date.getMinutes();
+                const curr_sec = curr_date.getSeconds();
                 var bids = data.bids.slice(0, 5);
                 var asks = data.asks.slice(0, 5);
+                var time = document.getElementById('updateTime_' + coin_id);
+                time.innerHTML = `${curr_hour}:${curr_min}:${curr_sec}`
+                // time.innerHTML = curr_date
+
 
                 var bids_table = document.getElementById('bids_table_' + coin_id);
                 var asks_table = document.getElementById('asks_table_' + coin_id);
@@ -80,6 +91,24 @@
             })
             .catch(error => console.error('Error fetching order book data:', error));
     }
+    
+    function removeCoin(coin_id){
+        fetch('/coin/' + coin_id + '/delete')
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success'){
+                    cards = document.querySelectorAll('[id="card"]')
+                    cards.forEach( card => {
+                        const coinName = card.dataset.coinName
+                        if(coinName == coin_id){
+                            card.remove()
+                        }
+                    })
+                }
+        })
+        .catch(error => console.error('Error removing coin:', error));
+    }
+    
 
     let index = 0;
     setInterval(() => {
@@ -87,5 +116,6 @@
         updateOrderBook(coin_id);
         index = (index + 1) % coins.length;
     }, 1000);
+
 </script>
 </html>

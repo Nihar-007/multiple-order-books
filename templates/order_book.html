@@ -4,12 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ coin_id }}</title>
-    <link rel="stylesheet" href="../static/css/index.css">
+    <link rel="stylesheet" href="../static/css/order_book.css">
 </head>
 <body>
     {% if coin_id %}
-        <h2>Order Book for {{ coin_id }} (USDT) <a href="/">Home</a> <a href="#">Add to Watchlist</a></h2>
-
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/watchlist/{{ coin_id }}">Add To Watchlist</a></li>
+            </ul>
+        </nav>
+        <h2>Order Book for {{ coin_id }} (USDT)</h2>
+        <h4>Last updated on : <time id="updateTime"></time></h4>
         <div class="order-tables">
             <!-- Bids Table -->
             <div>
@@ -70,8 +76,15 @@
             return response.json();
         })
         .then(data => {
+            const curr_date = new Date();
+            const curr_hour = curr_date.getHours();
+            const curr_min = curr_date.getMinutes();
+            const curr_sec = curr_date.getSeconds();
             var bids = data.bids.slice(0, 10);
             var asks = data.asks.slice(0, 10);
+
+            var time = document.getElementById('updateTime');
+            time.innerHTML = `${curr_hour}:${curr_min}:${curr_sec}`
 
             var bids_table = document.getElementById('bids');
             var asks_table = document.getElementById('asks');

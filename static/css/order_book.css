@@ -1,0 +1,50 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+nav > ul,li ,li > a{
+    display: flex;
+    justify-content: space-evenly;
+    text-decoration: none;
+    color: blue;
+    font-size: large;
+}
+li > a:hover{
+    cursor:pointer;
+    color: rgba(0, 0, 252, 0.74);
+    text-decoration: underline;
+}
+h1,
+h2,
+h4 {
+    text-align: center;
+}
+.order-tables {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 40px;
+}
+
+.container {
+    text-align: center;
+}
+
+
+table th,
+table td {
+    padding: 8px 12px;
+    text-align: right;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #f4f4f4;
+}
+
+table {
+    /* width: 45%;
+    margin: 20px; */
+    border-collapse: collapse;
+    display: inline-block;
+    vertical-align: top;
+}
